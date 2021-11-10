@@ -26,21 +26,21 @@ export default class MiniSlider extends Slider {
 
     nextSlide() {
         this.container.appendChild(this.slides[0]);
-        if (this.next.parentElement === this.container &&           // btns in sliderlist fix
-                this.next.parentElement === this.container) {
-            this.container.appendChild(this.prev);
-            this.container.appendChild(this.next);
+        if (this.next[0].parentElement === this.container &&           // btns in sliderlist fix
+                this.next[0].parentElement === this.container) {
+            this.container.appendChild(this.prev[0]);
+            this.container.appendChild(this.next[0]);
             console.log(this.container);
         }
         this.decorateSlides();
     }
 
     bindTriggers() {
-        this.next.addEventListener('click', () => this.nextSlide());
+        this.next[0].addEventListener('click', () => this.nextSlide());
 
-        this.prev.addEventListener('click', () => {            
+        this.prev[0].addEventListener('click', () => {            
             // let active = this.slides[this.slides.length - 1];
-            let active = this.next.parentElement === this.container ?   // btns in sliderlist fix
+            let active = this.next[0].parentElement === this.container ?   // btns in sliderlist fix
                 this.slides[this.slides.length - 3] :
                 this.slides[this.slides.length - 1];
             this.container.insertBefore(active, this.slides[0]);
@@ -50,27 +50,29 @@ export default class MiniSlider extends Slider {
     }
 
     init() {
-        this.container.style.cssText = `
-            display: flex;
-            flex-wrap: wrap;
-            overflow: hidden;
-            align-items: flex-start;
-        `;
+        try {
+            this.container.style.cssText = `
+                display: flex;
+                flex-wrap: wrap;
+                overflow: hidden;
+                align-items: flex-start;
+            `;
 
-        this.bindTriggers();
-        this.decorateSlides();
+            this.bindTriggers();
+            this.decorateSlides();
 
-        let autoplayTimer ='';
-        if (this.autoplay) {
-            autoplayTimer = setInterval(() => this.nextSlide(), 5000);
-
-            this.container.addEventListener('mouseenter', () => {
-                clearInterval(autoplayTimer);
-            });
-
-            this.container.addEventListener('mouseleave', () => {
+            let autoplayTimer ='';
+            if (this.autoplay) {
                 autoplayTimer = setInterval(() => this.nextSlide(), 5000);
-            });
-        }
+
+                this.container.addEventListener('mouseenter', () => {
+                    clearInterval(autoplayTimer);
+                });
+
+                this.container.addEventListener('mouseleave', () => {
+                    autoplayTimer = setInterval(() => this.nextSlide(), 5000);
+                });
+            }
+        } catch(e){}
     }
 }

@@ -1,8 +1,8 @@
 import Slider from "./slider";
 
 export default class MainSlider extends Slider {
-    constructor(btns) {
-        super(btns);
+    constructor(btns, prev, next) {
+        super(btns, prev, next);
     }
 
     showSlides(n = this.slideIndex) {
@@ -21,26 +21,26 @@ export default class MainSlider extends Slider {
         this.slides[this.slideIndex-1].style.display = 'block';
 
         try {          
-            if (this.slideIndex === 3) {
-                this.showByTime = this.slides[2].querySelector('.hanson');
-                this.showByTime.style.display = 'none';
-                this.showByTime.classList.add('animated', 'fadeInUp');
+            if (this.slideIndex === 3 && ! this.counter) {
+                let showByTime = this.slides[2].querySelector('.hanson');
+                showByTime.style.display = 'none';
+                showByTime.classList.add('animated', 'fadeInUp');
     
-                setTimeout(() => this.showByTime.style.display = 'block', 3000);    
-                setTimeout(() => this.showByTime.classList.remove('animated', 'fadeInUp'), 5000);
+                setTimeout(() => showByTime.style.display = 'block', 3000);    
+                setTimeout(() => showByTime.classList.remove('animated', 'fadeInUp'), 5000);
+
+                this.counter++;
             }
         } catch(e){}
     }
 
-    plusSlides (n) {
+    plusSlides(n = 1) {
         this.showSlides(this.slideIndex += n);
     }
 
-    render() {
+    bindTriggers() {
         this.btns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.plusSlides(1);
-            });
+            btn.addEventListener('click', () => this.plusSlides());
 
             btn.parentNode.previousElementSibling.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -49,6 +49,14 @@ export default class MainSlider extends Slider {
             });
         });
 
-        this.showSlides();
+        this.next.forEach(btn => btn.addEventListener('click', () => this.plusSlides()));
+        this.prev.forEach(btn => btn.addEventListener('click', () => this.plusSlides(-1)));
+    }
+
+    render() {
+        if (this.container) {
+            this.bindTriggers();
+            this.showSlides();
+        }
     }
 }

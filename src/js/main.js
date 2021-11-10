@@ -8,6 +8,14 @@ window.addEventListener('DOMContentLoaded', () => {
     const mainSlider = new MainSlider({ container: '.page', btns: '.next' });
     mainSlider.render();
 
+    const modulesPageSlider = new MainSlider({
+        container: '.moduleapp',
+        btns: 'a.next',
+        next: '.nextmodule',
+        prev: '.prevmodule'
+    });
+    modulesPageSlider.render();
+
     const showUpSlider = new MiniSlider({
         container: '.showup__content-slider',
         next: '.showup__next',
@@ -35,8 +43,8 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     feedSlider.init();
 
-    const player = new VideoPlayer('.showup .play', '.overlay');
-    player.init();
+    new VideoPlayer('.showup .play', '.overlay').init();
+    new VideoPlayer('.module__video-item .play', '.overlay').init();
 
     new Difference('.officerold', '.officer__card-item').init();
     new Difference('.officernew', '.officer__card-item').init();

@@ -9,14 +9,15 @@ export default class Slider {
         autoplay = false
      } = {}) {
         this.container = document.querySelector(container);
-        this.slides = this.container.children;
+        try { this.slides = this.container.children; } catch(e){}
         // this.container.parentElement.querySelectorAll(`${container} > *:not(button)`);
         this.btns = document.querySelectorAll(btns);
-        this.prev = document.querySelector(prev);
-        this.next = document.querySelector(next);
+        this.prev = document.querySelectorAll(prev);
+        this.next = document.querySelectorAll(next);
         this.activeClass = activeClass;
         this.animate = animate;
         this.autoplay = autoplay;
         this.slideIndex = 1;
+        this.counter = 0;
     }
 }
