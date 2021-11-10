@@ -60,8 +60,17 @@ export default class MiniSlider extends Slider {
         this.bindTriggers();
         this.decorateSlides();
 
+        let autoplayTimer ='';
         if (this.autoplay) {
-            setInterval(() => this.nextSlide(), 5000);
+            autoplayTimer = setInterval(() => this.nextSlide(), 5000);
+
+            this.container.addEventListener('mouseenter', () => {
+                clearInterval(autoplayTimer);
+            });
+
+            this.container.addEventListener('mouseleave', () => {
+                autoplayTimer = setInterval(() => this.nextSlide(), 5000);
+            });
         }
     }
 }
