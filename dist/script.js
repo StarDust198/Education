@@ -2323,7 +2323,7 @@ window.addEventListener('DOMContentLoaded', () => {
   player.init();
   new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"]('.officerold', '.officer__card-item').init();
   new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"]('.officernew', '.officer__card-item').init();
-  new _modules_forms__WEBPACK_IMPORTED_MODULE_4__["default"]('.form').bindForms();
+  new _modules_forms__WEBPACK_IMPORTED_MODULE_4__["default"]('.form').init();
 });
 
 /***/ }),
@@ -2386,10 +2386,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Forms; });
 /* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.string.replace */ "./node_modules/core-js/modules/es.string.replace.js");
 /* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _services_requests__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/requests */ "./src/js/services/requests.js");
-/* harmony import */ var _services_mask__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/mask */ "./src/js/services/mask.js");
-
-
 
 class Forms {
   constructor(forms) {
@@ -2402,26 +2398,76 @@ class Forms {
       ok: 'assets/img/ok.png',
       fail: 'assets/img/fail.png'
     };
+    this.path = 'assets/question.php';
+  }
+
+  async postData(url, data) {
+    let res = await fetch(url, {
+      method: 'POST',
+      body: data
+    });
+    return await res.text();
   }
 
   checkEmailInput(input) {
     input.addEventListener('input', function (e) {
-      this.value = this.value.replace(/[^a-z0-9\.\_\@]/ig, '');
+      this.value = this.value.replace(/[^a-z 0-9\.\_\@]/ig, '');
     });
   }
 
   checkPhoneInput() {
-    Object(_services_mask__WEBPACK_IMPORTED_MODULE_2__["default"])('#phone');
+    let setCursorPosition = (pos, elem) => {
+      elem.focus();
+
+      if (elem.setSelectionRange) {
+        elem.setSelectionRange(pos, pos);
+      } else if (elem.createTextRange) {
+        let range = elem.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', pos);
+        range.moveStart('character', pos);
+        range.select();
+      }
+    };
+
+    function createMask(event) {
+      let matrix = '+1 (___) ___-____',
+          i = 0,
+          def = matrix.replace(/\D/g, ''),
+          val = this.value.replace(/\D/g, '');
+
+      if (def.length >= val.length) {
+        val = def;
+      }
+
+      this.value = matrix.replace(/./g, function (a) {
+        return /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? '' : a;
+      });
+
+      if (event.type === 'blur') {
+        if (this.value.length == 2) {
+          this.value = '';
+        }
+      } else {
+        setCursorPosition(this.value.length, this);
+      }
+    }
+
+    let inputs = document.querySelectorAll('#phone');
+    inputs.forEach(input => {
+      input.addEventListener('input', createMask);
+      input.addEventListener('focus', createMask);
+      input.addEventListener('blur', createMask);
+    });
   }
 
-  bindForms() {
+  init() {
     this.checkPhoneInput();
     this.forms.forEach(form => {
       this.checkEmailInput(form.querySelector('input[type="email"]'));
       form.addEventListener('submit', e => {
         e.preventDefault();
         let statusMessage = document.createElement('div');
-        statusMessage.classList.add('status');
         form.appendChild(statusMessage);
         let statusImg = document.createElement('img');
         statusImg.src = this.message.spinner;
@@ -2431,10 +2477,7 @@ class Forms {
         textMessage.textContent = this.message.loading;
         statusMessage.appendChild(textMessage);
         const formData = new FormData(form);
-        const obj = {};
-        formData.forEach((value, key) => obj[key] = value);
-        const json = JSON.stringify(obj);
-        Object(_services_requests__WEBPACK_IMPORTED_MODULE_1__["postData"])('https://jsonplaceholder.typicode.com/posts', json).then(res => {
+        this.postData(this.path, formData).then(res => {
           console.log(res);
           statusImg.setAttribute('src', this.message.ok);
           textMessage.textContent = this.message.success;
@@ -2446,7 +2489,7 @@ class Forms {
           form.reset();
           setTimeout(() => {
             statusMessage.remove();
-          }, 3000);
+          }, 5000);
         });
       });
     });
@@ -2706,129 +2749,6 @@ class Slider {
   }
 
 }
-
-/***/ }),
-
-/***/ "./src/js/services/mask.js":
-/*!*********************************!*\
-  !*** ./src/js/services/mask.js ***!
-  \*********************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.string.replace */ "./node_modules/core-js/modules/es.string.replace.js");
-/* harmony import */ var core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_replace__WEBPACK_IMPORTED_MODULE_0__);
-
-
-const mask = selector => {
-  let setCursorPosition = (pos, elem) => {
-    elem.focus();
-
-    if (elem.setSelectionRange) {
-      elem.setSelectionRange(pos, pos);
-    } else if (elem.createTextRange) {
-      let range = elem.createTextRange();
-      range.collapse(true);
-      range.moveEnd('character', pos);
-      range.moveStart('character', pos);
-      range.select();
-    }
-  };
-
-  function createMask(event) {
-    let matrix = '+1 (___) ___-____',
-        // создание шаблона
-    i = 0,
-        // создание итератора
-    def = matrix.replace(/\D/g, ''),
-        // выделение цифр из матрицы, значение поля ввода по ум.
-    val = this.value.replace(/\D/g, ''); // выделение цифр из поля ввода
-
-    if (def.length >= val.length) {
-      // если длина цифр матрицы больше длины цифр поля ввода
-      val = def; // то заменить на значение по умолчанию
-    }
-
-    this.value = matrix.replace(/./g, function (a) {
-      // приравниваем значение поля воода к шаблону, тестируя
-      // каждый символ шаблона:
-      // return /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? '' : a;
-      if (/[_\d]/.test(a) && i < val.length) {
-        // если подчеркивание или цифры -
-        if (val.charAt(0) != '1' && val.charAt(1) == '1') {
-          val = val.slice(1);
-        } else if (val.charAt(0) != '1' && val.charAt(1) != '1' && i == 0) {
-          i++;
-          return '1';
-        }
-
-        let b = val.charAt(i); // узнаём символ в цифрах поля ввода под номером итератора,
-
-        i++; // затем итератор увеличивается и                 
-
-        return b; // возвращаем узнанное значение
-      } else if (i >= val.length) {
-        // если итератор больше или равен длине цифр поля ввода
-        return ''; // возвращаем пустоту
-      } else {
-        // во всех других случаях
-        return a; // возвращаем тестируемый символ
-      }
-    });
-
-    if (event.type === 'blur') {
-      if (this.value.length == 2) {
-        this.value = '';
-      }
-    } else {
-      setCursorPosition(this.value.length, this);
-    }
-  }
-
-  let inputs = document.querySelectorAll(selector);
-  inputs.forEach(input => {
-    input.addEventListener('input', createMask);
-    input.addEventListener('focus', createMask);
-    input.addEventListener('blur', createMask);
-  });
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (mask);
-
-/***/ }),
-
-/***/ "./src/js/services/requests.js":
-/*!*************************************!*\
-  !*** ./src/js/services/requests.js ***!
-  \*************************************/
-/*! exports provided: postData, getResource */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "postData", function() { return postData; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getResource", function() { return getResource; });
-const postData = async (url, data) => {
-  let res = await fetch(url, {
-    method: 'POST',
-    body: data
-  });
-  return await res.text();
-};
-
-const getResource = async (url, data) => {
-  let res = await fetch(url);
-
-  if (!res.ok) {
-    throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-  }
-
-  return await res.json();
-};
-
-
 
 /***/ })
 

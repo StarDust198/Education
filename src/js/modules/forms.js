@@ -1,6 +1,3 @@
-import { postData } from "../services/requests";
-import mask from "../services/mask";
-
 export default class Forms {
     constructor (forms) {
         this.forms = document.querySelectorAll(forms);
@@ -12,20 +9,72 @@ export default class Forms {
             ok: 'assets/img/ok.png',
             fail: 'assets/img/fail.png'
         };
+        this.path = 'assets/question.php';
+    }
+
+    async postData(url, data) {
+        let res = await fetch(url, {
+            method: 'POST',
+            body: data            
+        });
+    
+        return await res.text();
     }
 
     checkEmailInput(input) {
         input.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^a-z0-9\.\_\@]/ig, '');
+            this.value = this.value.replace(/[^a-z 0-9\.\_\@]/ig, '');
         });
     }
 
     checkPhoneInput() {
-        mask('#phone');
+        let setCursorPosition = (pos, elem) => {
+            elem.focus();
+    
+            if (elem.setSelectionRange) {
+                elem.setSelectionRange(pos, pos);
+            } else if (elem.createTextRange) {
+                let range = elem.createTextRange();
+    
+                range.collapse(true);
+                range.moveEnd('character', pos);
+                range.moveStart('character', pos);
+                range.select();
+            }
+        };
+    
+        function createMask(event) {
+            let matrix = '+1 (___) ___-____',                
+                i = 0,                                        
+                def = matrix.replace(/\D/g, ''),                
+                val = this.value.replace(/\D/g, '');           
+    
+            if (def.length >= val.length) {                    
+                val = def;                                      
+            }
+    
+            this.value = matrix.replace(/./g, function(a) {                                                            
+                return /[_\d]/.test(a) && i < val.length ? val.charAt(i++) : i >= val.length ? '' : a;
+            });
+    
+            if (event.type === 'blur') {
+                if (this.value.length == 2) {
+                    this.value = '';
+                }
+            } else {
+                setCursorPosition(this.value.length, this);
+            }
+        }
+    
+        let inputs = document.querySelectorAll('#phone');
+        inputs.forEach(input => {
+            input.addEventListener('input', createMask);
+            input.addEventListener('focus', createMask);
+            input.addEventListener('blur', createMask);
+        });
     }
 
-
-    bindForms() {
+    init() {
         this.checkPhoneInput();
 
         this.forms.forEach(form => {
@@ -35,8 +84,7 @@ export default class Forms {
                 e.preventDefault();
 
                 let statusMessage = document.createElement('div');
-                statusMessage.classList.add('status');
-                form.appendChild(statusMessage);    
+                form.appendChild(statusMessage);
 
                 let statusImg = document.createElement('img');
                 statusImg.src = this.message.spinner;
@@ -48,11 +96,8 @@ export default class Forms {
                 statusMessage.appendChild(textMessage);   
 
                 const formData = new FormData(form);
-                const obj = {};
-                formData.forEach((value, key) => obj[key] = value);
-                const json = JSON.stringify(obj);
 
-                postData('https://jsonplaceholder.typicode.com/posts', json)
+                this.postData(this.path, formData)
                     .then(res => {
                         console.log(res);
                         statusImg.setAttribute('src', this.message.ok);
@@ -67,7 +112,7 @@ export default class Forms {
                         form.reset();
                         setTimeout(() => {
                             statusMessage.remove();
-                        }, 3000);
+                        }, 5000);
                     });
             });
         });

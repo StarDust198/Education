@@ -41,5 +41,5 @@ window.addEventListener('DOMContentLoaded', () => {
     new Difference('.officerold', '.officer__card-item').init();
     new Difference('.officernew', '.officer__card-item').init();
 
-    new Forms('.form').bindForms();
+    new Forms('.form').init();
 });
