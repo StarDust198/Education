@@ -4,6 +4,7 @@ import VideoPlayer from './modules/playVideo';
 import Difference from './modules/difference';
 import Forms from './modules/forms';
 import Accordion from './modules/accordion';
+import Download from './modules/download';
 
 window.addEventListener('DOMContentLoaded', () => {
     const mainSlider = new MainSlider({ container: '.page', btns: '.next' });
@@ -52,4 +53,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
     new Forms('.form').init();
     new Accordion('.module__info-show > .plus').init();
+
+    new Download('.download', '/assets/img/bitmap.jpg').init();
 });
