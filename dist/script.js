@@ -2284,6 +2284,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_playVideo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/playVideo */ "./src/js/modules/playVideo.js");
 /* harmony import */ var _modules_difference__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/difference */ "./src/js/modules/difference.js");
 /* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
+/* harmony import */ var _modules_accordion__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/accordion */ "./src/js/modules/accordion.js");
+
 
 
 
@@ -2331,7 +2333,72 @@ window.addEventListener('DOMContentLoaded', () => {
   new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"]('.officerold', '.officer__card-item').init();
   new _modules_difference__WEBPACK_IMPORTED_MODULE_3__["default"]('.officernew', '.officer__card-item').init();
   new _modules_forms__WEBPACK_IMPORTED_MODULE_4__["default"]('.form').init();
+  new _modules_accordion__WEBPACK_IMPORTED_MODULE_5__["default"]('.module__info-show > .plus').init();
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/accordion.js":
+/*!*************************************!*\
+  !*** ./src/js/modules/accordion.js ***!
+  \*************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Accordion; });
+class Accordion {
+  constructor(triggers) {
+    this.triggers = document.querySelectorAll(triggers);
+    this.text = 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Tempore ' + 'excepturi, eaque dolorem fugit veritatis assumenda, ut quae sed porro ' + 'eligendi, expedita dolores culpa magni unde delectus officiis ex hic quo!';
+    this.styles = `
+            padding: 5px 14px 10px 14px;
+            transition: all 0.5s ease-out;
+            background: rgba(109,83,175,.03);
+            border: 1px solid rgba(109,83,175,.101432);
+            border-radius: 15.5px;
+            color: #7b6ca1;
+        `;
+    this.counter = [];
+  }
+
+  bindTriggers() {
+    this.triggers.forEach((btn, i) => {
+      this.counter[i] = 0;
+      btn.parentElement.insertAdjacentHTML('afterend', `                
+                <div class="hint-text" style="${this.styles}
+                    margin-top: 0;
+                    max-height: 0;
+                    opacity: 0;
+                ">${this.text}</div>
+            `);
+      const hintText = btn.parentElement.nextElementSibling;
+      btn.addEventListener('click', () => {
+        if (!this.counter[i]) {
+          hintText.style.cssText = `${this.styles}
+                        margin-top: 10px;
+                        max-height: ${hintText.scrollHeight + 10 + 'px'};
+                        opacity: 1;
+                    `;
+          this.counter[i] = 1;
+        } else {
+          hintText.style.cssText = `${this.styles}
+                        margin-top: 0;
+                        max-height: 0;
+                        opacity: 0;
+                    `;
+          this.counter[i] = 0;
+        }
+      });
+    });
+  }
+
+  init() {
+    this.bindTriggers();
+  }
+
+}
 
 /***/ }),
 
